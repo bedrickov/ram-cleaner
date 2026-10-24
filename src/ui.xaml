@@ -1,0 +1,518 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="CleanerRAM" Width="410" Height="680" WindowStyle="None" AllowsTransparency="True"
+        Background="Transparent" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen"
+        FontFamily="Segoe UI Variable Display, Segoe UI" FontSize="13"
+        UseLayoutRounding="True" SnapsToDevicePixels="True"
+        FocusVisualStyle="{x:Null}"
+        KeyboardNavigation.TabNavigation="None" KeyboardNavigation.ControlTabNavigation="None"
+        KeyboardNavigation.DirectionalNavigation="None"
+        TextOptions.TextFormattingMode="Display" TextOptions.TextRenderingMode="ClearType"
+        RenderOptions.ClearTypeHint="Enabled">
+  <Window.Resources>
+    <!-- Цветовая палитра: Glassmorphism / LiquidGlass -->
+    <SolidColorBrush x:Key="Bg" Color="#F5F3EF"/>
+    <SolidColorBrush x:Key="Glass" Color="#70FFFFFF"/>
+    <SolidColorBrush x:Key="GlassHover" Color="#99FFFFFF"/>
+    <SolidColorBrush x:Key="GlassStrong" Color="#E8FFFFFF"/>
+    <SolidColorBrush x:Key="Edge" Color="#60FFFFFF"/>
+    <SolidColorBrush x:Key="Ink" Color="#181512"/>
+    <SolidColorBrush x:Key="Sub" Color="#7D746A"/>
+    <SolidColorBrush x:Key="Track" Color="#12000000"/>
+    <SolidColorBrush x:Key="Accent" Color="#FF6A00"/>
+    <SolidColorBrush x:Key="Blob1" Color="#FF6A00"/>
+    <SolidColorBrush x:Key="Blob2" Color="#FF9E4A"/>
+
+    <CubicEase x:Key="Out" EasingMode="EaseOut"/>
+    <BackEase x:Key="Pop" EasingMode="EaseOut" Amplitude="0.45"/>
+
+    <!-- Аппаратные Liquid Glass карточки с чистым градиентным бордером и подсветкой -->
+    <Style x:Key="GlassCard" TargetType="Border">
+      <Setter Property="Background" Value="{DynamicResource Glass}"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource Edge}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="24"/>
+    </Style>
+
+    <Style x:Key="H" TargetType="TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource Ink}"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+    <Style x:Key="Lbl" TargetType="TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource Ink}"/>
+      <Setter Property="FontSize" Value="13.5"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style x:Key="Cap" TargetType="TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource Sub}"/>
+      <Setter Property="FontSize" Value="12"/>
+    </Style>
+    <Style x:Key="Sec" TargetType="TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource Sub}"/>
+      <Setter Property="FontSize" Value="11.5"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="Margin" Value="10,20,0,8"/>
+    </Style>
+    <Style x:Key="Sep" TargetType="Rectangle">
+      <Setter Property="Height" Value="1"/>
+      <Setter Property="Fill" Value="{DynamicResource Track}"/>
+    </Style>
+
+    <!-- Переключатель (Switch) с физичной пружинной анимацией и свечением -->
+    <Style x:Key="Switch" TargetType="CheckBox">
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Focusable" Value="False"/>
+      <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+      <Setter Property="HorizontalAlignment" Value="Right"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="CheckBox">
+            <Grid Width="46" Height="26" Background="Transparent">
+              <Border CornerRadius="13" Background="{DynamicResource Track}" BorderBrush="{DynamicResource Edge}" BorderThickness="0.8"/>
+              <Border x:Name="A" CornerRadius="13" Background="{DynamicResource Accent}" Opacity="0"/>
+              <Ellipse x:Name="K" Width="20" Height="20" Fill="White" HorizontalAlignment="Left" Margin="3,0,0,0" RenderTransformOrigin="0.5,0.5">
+                <Ellipse.RenderTransform><ScaleTransform x:Name="KS"/></Ellipse.RenderTransform>
+              </Ellipse>
+            </Grid>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsChecked" Value="True">
+                <Trigger.EnterActions>
+                  <BeginStoryboard><Storyboard>
+                    <ThicknessAnimation Storyboard.TargetName="K" Storyboard.TargetProperty="Margin" To="23,0,0,0" Duration="0:0:0.28" EasingFunction="{StaticResource Pop}"/>
+                    <DoubleAnimation Storyboard.TargetName="A" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.2"/>
+                  </Storyboard></BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <BeginStoryboard><Storyboard>
+                    <ThicknessAnimation Storyboard.TargetName="K" Storyboard.TargetProperty="Margin" To="3,0,0,0" Duration="0:0:0.28" EasingFunction="{StaticResource Pop}"/>
+                    <DoubleAnimation Storyboard.TargetName="A" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.2"/>
+                  </Storyboard></BeginStoryboard>
+                </Trigger.ExitActions>
+              </Trigger>
+              <Trigger Property="IsPressed" Value="True">
+                <Trigger.EnterActions>
+                  <BeginStoryboard><Storyboard>
+                    <DoubleAnimation Storyboard.TargetName="KS" Storyboard.TargetProperty="ScaleX" To="1.24" Duration="0:0:0.1"/>
+                  </Storyboard></BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <BeginStoryboard><Storyboard>
+                    <DoubleAnimation Storyboard.TargetName="KS" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.2" EasingFunction="{StaticResource Pop}"/>
+                  </Storyboard></BeginStoryboard>
+                </Trigger.ExitActions>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <Style x:Key="Fill" TargetType="RepeatButton">
+      <Setter Property="Focusable" Value="False"/>
+      <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="RepeatButton">
+        <Border Height="6" CornerRadius="3" Background="{DynamicResource Accent}"/>
+      </ControlTemplate></Setter.Value></Setter>
+    </Style>
+    <Style x:Key="Empty" TargetType="RepeatButton">
+      <Setter Property="Focusable" Value="False"/>
+      <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="RepeatButton">
+        <Border Background="Transparent"/>
+      </ControlTemplate></Setter.Value></Setter>
+    </Style>
+    <Style x:Key="Knob" TargetType="Thumb">
+      <Setter Property="Focusable" Value="False"/>
+      <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+      <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Thumb">
+        <Grid Width="22" Height="22" Background="Transparent">
+          <Ellipse Width="20" Height="20" Fill="White" Stroke="{DynamicResource Accent}" StrokeThickness="2.5" RenderTransformOrigin="0.5,0.5">
+            <Ellipse.RenderTransform><ScaleTransform x:Name="S"/></Ellipse.RenderTransform>
+          </Ellipse>
+        </Grid>
+        <ControlTemplate.Triggers>
+          <Trigger Property="IsMouseOver" Value="True">
+            <Trigger.EnterActions><BeginStoryboard><Storyboard>
+              <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleX" To="1.2" Duration="0:0:0.12"/>
+              <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleY" To="1.2" Duration="0:0:0.12"/>
+            </Storyboard></BeginStoryboard></Trigger.EnterActions>
+            <Trigger.ExitActions><BeginStoryboard><Storyboard>
+              <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.15"/>
+              <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.15"/>
+            </Storyboard></BeginStoryboard></Trigger.ExitActions>
+          </Trigger>
+          <Trigger Property="IsDragging" Value="True">
+            <Trigger.EnterActions><BeginStoryboard><Storyboard>
+              <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleX" To="1.35" Duration="0:0:0.1"/>
+              <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleY" To="1.35" Duration="0:0:0.1"/>
+            </Storyboard></BeginStoryboard></Trigger.EnterActions>
+            <Trigger.ExitActions><BeginStoryboard><Storyboard>
+              <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleX" To="1.2" Duration="0:0:0.15"/>
+              <DoubleAnimation Storyboard.TargetName="S" Storyboard.TargetProperty="ScaleY" To="1.2" Duration="0:0:0.15"/>
+            </Storyboard></BeginStoryboard></Trigger.ExitActions>
+          </Trigger>
+        </ControlTemplate.Triggers>
+      </ControlTemplate></Setter.Value></Setter>
+    </Style>
+    <Style x:Key="Range" TargetType="Slider">
+      <Setter Property="IsMoveToPointEnabled" Value="True"/>
+      <Setter Property="IsSnapToTickEnabled" Value="True"/>
+      <Setter Property="TickFrequency" Value="1"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Focusable" Value="False"/>
+      <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+      <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Slider">
+        <Grid Height="28" Background="Transparent">
+          <Border Height="6" CornerRadius="3" Background="{DynamicResource Track}" VerticalAlignment="Center"/>
+          <Track x:Name="PART_Track">
+            <Track.DecreaseRepeatButton><RepeatButton Style="{StaticResource Fill}" Command="Slider.DecreaseLarge"/></Track.DecreaseRepeatButton>
+            <Track.IncreaseRepeatButton><RepeatButton Style="{StaticResource Empty}" Command="Slider.IncreaseLarge"/></Track.IncreaseRepeatButton>
+            <Track.Thumb><Thumb Style="{StaticResource Knob}"/></Track.Thumb>
+          </Track>
+        </Grid>
+      </ControlTemplate></Setter.Value></Setter>
+    </Style>
+
+    <!-- Табы и сегменты -->
+    <Style x:Key="Seg" TargetType="RadioButton">
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Focusable" Value="False"/>
+      <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+      <Setter Property="Foreground" Value="{DynamicResource Sub}"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="RadioButton">
+        <Border Background="Transparent" Padding="14,0" Height="36">
+          <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Border>
+        <ControlTemplate.Triggers>
+          <Trigger Property="IsChecked" Value="True"><Setter Property="Foreground" Value="{DynamicResource Ink}"/></Trigger>
+        </ControlTemplate.Triggers>
+      </ControlTemplate></Setter.Value></Setter>
+    </Style>
+    <Style x:Key="Ind" TargetType="Border">
+      <Setter Property="Background" Value="{DynamicResource GlassStrong}"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource Edge}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="12"/>
+      <Setter Property="Height" Value="36"/>
+      <Setter Property="Width" Value="0"/>
+      <Setter Property="HorizontalAlignment" Value="Left"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+      <Setter Property="IsHitTestVisible" Value="False"/>
+    </Style>
+
+    <!-- Цветовые кружки тем -->
+    <Style x:Key="Dot" TargetType="RadioButton">
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Focusable" Value="False"/>
+      <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+      <Setter Property="Margin" Value="5,0,0,0"/>
+      <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="RadioButton">
+        <Grid Width="28" Height="28" Background="Transparent" RenderTransformOrigin="0.5,0.5">
+          <Grid.RenderTransform><ScaleTransform x:Name="GS"/></Grid.RenderTransform>
+          <Ellipse x:Name="R" Stroke="{TemplateBinding Background}" StrokeThickness="2.5" Opacity="0" RenderTransformOrigin="0.5,0.5">
+            <Ellipse.RenderTransform><ScaleTransform x:Name="RS" ScaleX="0.5" ScaleY="0.5"/></Ellipse.RenderTransform>
+          </Ellipse>
+          <Ellipse Margin="5" Fill="{TemplateBinding Background}"/>
+        </Grid>
+        <ControlTemplate.Triggers>
+          <Trigger Property="IsChecked" Value="True">
+            <Trigger.EnterActions><BeginStoryboard><Storyboard>
+              <DoubleAnimation Storyboard.TargetName="R" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.18"/>
+              <DoubleAnimation Storyboard.TargetName="RS" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.35" EasingFunction="{StaticResource Pop}"/>
+              <DoubleAnimation Storyboard.TargetName="RS" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.35" EasingFunction="{StaticResource Pop}"/>
+            </Storyboard></BeginStoryboard></Trigger.EnterActions>
+            <Trigger.ExitActions><BeginStoryboard><Storyboard>
+              <DoubleAnimation Storyboard.TargetName="R" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.18"/>
+              <DoubleAnimation Storyboard.TargetName="RS" Storyboard.TargetProperty="ScaleX" To="0.5" Duration="0:0:0.18"/>
+              <DoubleAnimation Storyboard.TargetName="RS" Storyboard.TargetProperty="ScaleY" To="0.5" Duration="0:0:0.18"/>
+            </Storyboard></BeginStoryboard></Trigger.ExitActions>
+          </Trigger>
+          <Trigger Property="IsMouseOver" Value="True">
+            <Trigger.EnterActions><BeginStoryboard><Storyboard>
+              <DoubleAnimation Storyboard.TargetName="GS" Storyboard.TargetProperty="ScaleX" To="1.18" Duration="0:0:0.14"/>
+              <DoubleAnimation Storyboard.TargetName="GS" Storyboard.TargetProperty="ScaleY" To="1.18" Duration="0:0:0.14"/>
+            </Storyboard></BeginStoryboard></Trigger.EnterActions>
+            <Trigger.ExitActions><BeginStoryboard><Storyboard>
+              <DoubleAnimation Storyboard.TargetName="GS" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.18"/>
+              <DoubleAnimation Storyboard.TargetName="GS" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.18"/>
+            </Storyboard></BeginStoryboard></Trigger.ExitActions>
+          </Trigger>
+        </ControlTemplate.Triggers>
+      </ControlTemplate></Setter.Value></Setter>
+    </Style>
+
+    <Style x:Key="IconBtn" TargetType="Border">
+      <Setter Property="Width" Value="34"/>
+      <Setter Property="Height" Value="34"/>
+      <Setter Property="CornerRadius" Value="12"/>
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Style.Triggers>
+        <Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="{DynamicResource Track}"/></Trigger>
+      </Style.Triggers>
+    </Style>
+
+    <Style x:Key="Pill" TargetType="Border">
+      <Setter Property="Background" Value="{DynamicResource Track}"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource Edge}"/>
+      <Setter Property="BorderThickness" Value="0.8"/>
+      <Setter Property="CornerRadius" Value="14"/>
+      <Setter Property="Padding" Value="2"/>
+      <Setter Property="HorizontalAlignment" Value="Right"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+  </Window.Resources>
+
+  <Grid x:Name="Root" RenderOptions.BitmapScalingMode="LowQuality">
+    <Border Background="{DynamicResource Bg}"/>
+
+    <!-- Анимированные Liquid Glass пятна (чистые RadialGradient, на GPU без масок) -->
+    <Canvas IsHitTestVisible="False" ClipToBounds="True">
+      <Ellipse x:Name="BlobA" Width="550" Height="550" Canvas.Left="-240" Canvas.Top="-220" Opacity="0.85"/>
+      <Ellipse x:Name="BlobB" Width="500" Height="500" Canvas.Left="100" Canvas.Top="180" Opacity="0.8"/>
+      <Ellipse x:Name="BlobC" Width="420" Height="420" Canvas.Left="-160" Canvas.Top="440" Opacity="0.6"/>
+      <Ellipse x:Name="BlobD" Width="460" Height="460" Canvas.Left="-40" Canvas.Top="80" Opacity="0.65"/>
+      <Ellipse x:Name="BlobE" Width="400" Height="400" Canvas.Left="160" Canvas.Top="-100" Opacity="0.55"/>
+    </Canvas>
+
+    <Grid Margin="20,12,20,20">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+
+      <!-- Шапка -->
+      <Grid x:Name="Header" Height="50" Background="Transparent">
+        <StackPanel x:Name="Brand" Orientation="Horizontal" VerticalAlignment="Center">
+          <Grid Width="26" Height="26" Margin="2,0,12,0">
+            <Ellipse x:Name="Ping" Width="10" Height="10" Fill="{DynamicResource Accent}" Opacity="0" RenderTransformOrigin="0.5,0.5"/>
+            <Ellipse Width="10" Height="10" Fill="{DynamicResource Accent}"/>
+          </Grid>
+          <StackPanel VerticalAlignment="Center">
+            <TextBlock Text="CleanerRAM" Style="{StaticResource H}" FontSize="15.5"/>
+            <TextBlock x:Name="SubText" Style="{StaticResource Cap}" FontSize="11.5" Margin="0,1,0,0"/>
+          </StackPanel>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+          <Border x:Name="MinBtn" Style="{StaticResource IconBtn}">
+            <Rectangle Width="10" Height="1.6" Fill="{DynamicResource Ink}"/>
+          </Border>
+          <Border x:Name="CloseBtn" Style="{StaticResource IconBtn}" Margin="4,0,0,0">
+            <Path Data="M0,0 L9.5,9.5 M9.5,0 L0,9.5" Stroke="{DynamicResource Ink}" StrokeThickness="1.6"
+                  StrokeStartLineCap="Round" StrokeEndLineCap="Round" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          </Border>
+        </StackPanel>
+      </Grid>
+
+      <!-- Переключатель вкладок -->
+      <Border x:Name="TabBar" Grid.Row="1" Style="{StaticResource GlassCard}" CornerRadius="16" Padding="3" Margin="0,4,0,14">
+        <Grid x:Name="TabHost">
+          <Border x:Name="TabInd" Style="{StaticResource Ind}"/>
+          <UniformGrid Columns="2">
+            <RadioButton x:Name="TabMain" GroupName="tab" Style="{StaticResource Seg}" IsChecked="True"><TextBlock Tag="@tab.main"/></RadioButton>
+            <RadioButton x:Name="TabSet" GroupName="tab" Style="{StaticResource Seg}"><TextBlock Tag="@tab.settings"/></RadioButton>
+          </UniformGrid>
+        </Grid>
+      </Border>
+
+      <!-- Контейнер страниц -->
+      <Grid Grid.Row="2">
+        <!-- ГЛАВНАЯ СТРАНИЦА -->
+        <Grid x:Name="PageMain">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+
+          <!-- Индикатор памяти (Кольцо) -->
+          <Border x:Name="RingCard" Style="{StaticResource GlassCard}" CornerRadius="30">
+            <Grid x:Name="RingBox" Width="240" Height="240" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+              <Ellipse Margin="7" Stroke="{DynamicResource Track}" StrokeThickness="15"/>
+              <Path x:Name="Ring" Stroke="{DynamicResource Accent}" StrokeThickness="15" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+              <Path x:Name="Spin" Width="240" Height="240" Data="M120,34 A86,86 0 0 1 206,120" Stroke="{DynamicResource Accent}" StrokeThickness="3.5"
+                    StrokeStartLineCap="Round" StrokeEndLineCap="Round" Opacity="0" RenderTransformOrigin="0.5,0.5"/>
+              <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock Tag="@ram" Style="{StaticResource Cap}" HorizontalAlignment="Center"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                  <TextBlock x:Name="PctText" Text="0" FontSize="68" FontWeight="Light" Foreground="{DynamicResource Ink}"/>
+                  <TextBlock Text="%" FontSize="24" FontWeight="Light" Foreground="{DynamicResource Sub}" Margin="2,16,0,0"/>
+                </StackPanel>
+                <TextBlock x:Name="UsedText" Style="{StaticResource Cap}" HorizontalAlignment="Center" Margin="0,-4,0,0"/>
+              </StackPanel>
+            </Grid>
+          </Border>
+
+          <!-- Статистика -->
+          <Grid x:Name="Stats" Grid.Row="1" Margin="0,12,0,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition/><ColumnDefinition Width="10"/><ColumnDefinition/><ColumnDefinition Width="10"/><ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Border Style="{StaticResource GlassCard}" CornerRadius="20" Padding="14,12">
+              <StackPanel>
+                <TextBlock Tag="@stat.free" Style="{StaticResource Cap}"/>
+                <TextBlock x:Name="FreeText" Style="{StaticResource Lbl}" FontSize="16" FontWeight="SemiBold" Margin="0,4,0,0"/>
+              </StackPanel>
+            </Border>
+            <Border Grid.Column="2" Style="{StaticResource GlassCard}" CornerRadius="20" Padding="14,12">
+              <StackPanel>
+                <TextBlock Tag="@stat.freed" Style="{StaticResource Cap}"/>
+                <TextBlock x:Name="FreedText" Style="{StaticResource Lbl}" FontSize="16" FontWeight="SemiBold" Margin="0,4,0,0"/>
+              </StackPanel>
+            </Border>
+            <Border Grid.Column="4" Style="{StaticResource GlassCard}" CornerRadius="20" Padding="14,12">
+              <StackPanel>
+                <TextBlock Tag="@stat.next" Style="{StaticResource Cap}"/>
+                <TextBlock x:Name="NextText" Style="{StaticResource Lbl}" FontSize="16" FontWeight="SemiBold" Margin="0,4,0,0"/>
+              </StackPanel>
+            </Border>
+          </Grid>
+
+          <!-- Свечение кнопки очистки -->
+          <Grid Grid.Row="2" IsHitTestVisible="False" Margin="0,12,0,0">
+            <Ellipse x:Name="Glow" Opacity="0.5" Margin="-25,18,-25,-30"/>
+          </Grid>
+
+          <!-- Кнопка очистки -->
+          <Border x:Name="CleanBtn" Grid.Row="2" Margin="0,12,0,0" Height="60" CornerRadius="20"
+                  Background="{DynamicResource Accent}" Cursor="Hand" RenderTransformOrigin="0.5,0.5">
+            <Grid>
+              <Border CornerRadius="19" Margin="1">
+                <Border.Background>
+                  <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#40FFFFFF" Offset="0"/>
+                    <GradientStop Color="#00FFFFFF" Offset="0.6"/>
+                  </LinearGradientBrush>
+                </Border.Background>
+              </Border>
+              <Rectangle x:Name="Shimmer" Width="120" HorizontalAlignment="Left" Opacity="0" IsHitTestVisible="False">
+                <Rectangle.Fill>
+                  <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Color="#00FFFFFF" Offset="0"/>
+                    <GradientStop Color="#70FFFFFF" Offset="0.5"/>
+                    <GradientStop Color="#00FFFFFF" Offset="1"/>
+                  </LinearGradientBrush>
+                </Rectangle.Fill>
+              </Rectangle>
+              <TextBlock x:Name="CleanText" Tag="@clean" Foreground="White" FontSize="15.5" FontWeight="SemiBold"
+                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Grid>
+          </Border>
+
+          <!-- Предупреждение о правах админа -->
+          <Grid x:Name="AdminBar" Grid.Row="3" Margin="6,12,6,0">
+            <TextBlock Tag="@admin.no" Style="{StaticResource Cap}" TextWrapping="Wrap" Margin="0,0,120,0" VerticalAlignment="Center"/>
+            <TextBlock x:Name="AdminBtn" Tag="@admin.btn" Foreground="{DynamicResource Accent}" FontWeight="SemiBold" FontSize="12"
+                       HorizontalAlignment="Right" VerticalAlignment="Center" Cursor="Hand" RenderTransformOrigin="0.5,0.5"/>
+          </Grid>
+        </Grid>
+
+        <!-- СТРАНИЦА НАСТРОЕК (Плавный, аппаратный ScrollViewer) -->
+        <ScrollViewer x:Name="PageSet" Visibility="Collapsed" VerticalScrollBarVisibility="Hidden" Focusable="False"
+                      CanContentScroll="False" PanningMode="VerticalOnly">
+          <StackPanel x:Name="SetList" Margin="0,0,0,10">
+            <TextBlock Tag="@sec.auto" Style="{StaticResource Sec}" Margin="10,0,0,8"/>
+            <Border Style="{StaticResource GlassCard}" Padding="18,6">
+              <StackPanel>
+                <Grid Height="50">
+                  <TextBlock Tag="@auto.enable" Style="{StaticResource Lbl}"/>
+                  <CheckBox x:Name="AutoT" Style="{StaticResource Switch}"/>
+                </Grid>
+                <StackPanel x:Name="AutoOpts">
+                  <Rectangle Style="{StaticResource Sep}"/>
+                  <StackPanel Margin="0,14,0,10">
+                    <Grid>
+                      <TextBlock Tag="@auto.interval" Style="{StaticResource Lbl}"/>
+                      <TextBlock x:Name="IntervalText" Style="{StaticResource Lbl}" Foreground="{DynamicResource Sub}" HorizontalAlignment="Right"/>
+                    </Grid>
+                    <Slider x:Name="IntervalS" Style="{StaticResource Range}" Minimum="1" Maximum="120" Margin="0,8,0,0"/>
+                  </StackPanel>
+                  <Rectangle Style="{StaticResource Sep}"/>
+                  <StackPanel Margin="0,14,0,12">
+                    <Grid>
+                      <TextBlock Tag="@auto.threshold" Style="{StaticResource Lbl}"/>
+                      <TextBlock x:Name="ThreshText" Style="{StaticResource Lbl}" Foreground="{DynamicResource Sub}" HorizontalAlignment="Right"/>
+                    </Grid>
+                    <Slider x:Name="ThreshS" Style="{StaticResource Range}" Minimum="0" Maximum="95" Margin="0,8,0,0"/>
+                  </StackPanel>
+                </StackPanel>
+              </StackPanel>
+            </Border>
+
+            <TextBlock Tag="@sec.what" Style="{StaticResource Sec}"/>
+            <Border Style="{StaticResource GlassCard}" Padding="18,6">
+              <StackPanel>
+                <Grid Height="50"><TextBlock Tag="@w.ws" Style="{StaticResource Lbl}"/><CheckBox x:Name="WsT" Style="{StaticResource Switch}"/></Grid>
+                <Rectangle Style="{StaticResource Sep}"/>
+                <Grid Height="50"><TextBlock Tag="@w.standby" Style="{StaticResource Lbl}"/><CheckBox x:Name="StandbyT" Style="{StaticResource Switch}"/></Grid>
+                <Rectangle Style="{StaticResource Sep}"/>
+                <Grid Height="50"><TextBlock Tag="@w.modified" Style="{StaticResource Lbl}"/><CheckBox x:Name="ModT" Style="{StaticResource Switch}"/></Grid>
+                <Rectangle Style="{StaticResource Sep}"/>
+                <Grid Height="50"><TextBlock Tag="@w.file" Style="{StaticResource Lbl}"/><CheckBox x:Name="FileT" Style="{StaticResource Switch}"/></Grid>
+              </StackPanel>
+            </Border>
+
+            <TextBlock Tag="@sec.look" Style="{StaticResource Sec}"/>
+            <Border Style="{StaticResource GlassCard}" Padding="18,6">
+              <StackPanel>
+                <Grid Height="54">
+                  <TextBlock Tag="@look.theme" Style="{StaticResource Lbl}"/>
+                  <Border Style="{StaticResource Pill}">
+                    <Grid x:Name="ThemeHost">
+                      <Border x:Name="ThemeInd" Style="{StaticResource Ind}"/>
+                      <StackPanel Orientation="Horizontal">
+                        <RadioButton x:Name="ThemeL" GroupName="theme" Style="{StaticResource Seg}"><TextBlock Tag="@theme.light"/></RadioButton>
+                        <RadioButton x:Name="ThemeD" GroupName="theme" Style="{StaticResource Seg}"><TextBlock Tag="@theme.dark"/></RadioButton>
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                </Grid>
+                <Rectangle Style="{StaticResource Sep}"/>
+                <Grid Height="54">
+                  <TextBlock Tag="@look.accent" Style="{StaticResource Lbl}"/>
+                  <StackPanel x:Name="AccentPanel" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <RadioButton GroupName="acc" Style="{StaticResource Dot}" Background="#FF6A00"/>
+                    <RadioButton GroupName="acc" Style="{StaticResource Dot}" Background="#FF3B30"/>
+                    <RadioButton GroupName="acc" Style="{StaticResource Dot}" Background="#E8A400"/>
+                    <RadioButton GroupName="acc" Style="{StaticResource Dot}" Background="#2E7CF6"/>
+                    <RadioButton GroupName="acc" Style="{StaticResource Dot}" Background="#2BA84A"/>
+                    <RadioButton GroupName="acc" Style="{StaticResource Dot}" Background="#7A726B"/>
+                  </StackPanel>
+                </Grid>
+                <Rectangle Style="{StaticResource Sep}"/>
+                <Grid Height="54">
+                  <TextBlock Tag="@look.lang" Style="{StaticResource Lbl}"/>
+                  <Border Style="{StaticResource Pill}">
+                    <Grid x:Name="LangHost">
+                      <Border x:Name="LangInd" Style="{StaticResource Ind}"/>
+                      <StackPanel Orientation="Horizontal">
+                        <RadioButton x:Name="LangRu" GroupName="lang" Style="{StaticResource Seg}"><TextBlock Text="Русский"/></RadioButton>
+                        <RadioButton x:Name="LangEn" GroupName="lang" Style="{StaticResource Seg}"><TextBlock Text="English"/></RadioButton>
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                </Grid>
+              </StackPanel>
+            </Border>
+
+            <TextBlock Tag="@sec.sys" Style="{StaticResource Sec}"/>
+            <Border Style="{StaticResource GlassCard}" Padding="18,6">
+              <StackPanel>
+                <Grid Height="50"><TextBlock Tag="@sys.autostart" Style="{StaticResource Lbl}"/><CheckBox x:Name="AutostartT" Style="{StaticResource Switch}"/></Grid>
+                <Rectangle Style="{StaticResource Sep}"/>
+                <Grid Height="50"><TextBlock Tag="@sys.tray" Style="{StaticResource Lbl}"/><CheckBox x:Name="TrayT" Style="{StaticResource Switch}"/></Grid>
+                <Rectangle Style="{StaticResource Sep}"/>
+                <Grid Height="50"><TextBlock Tag="@sys.notify" Style="{StaticResource Lbl}"/><CheckBox x:Name="NotifyT" Style="{StaticResource Switch}"/></Grid>
+              </StackPanel>
+            </Border>
+
+            <TextBlock Text="CleanerRAM 1.0" Style="{StaticResource Cap}" HorizontalAlignment="Center" Margin="0,20,0,0" Opacity="0.7"/>
+          </StackPanel>
+        </ScrollViewer>
+      </Grid>
+    </Grid>
+  </Grid>
+</Window>

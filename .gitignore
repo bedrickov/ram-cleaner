@@ -1,0 +1,28 @@
+# Build output directories
+bin/
+obj/
+x64/
+x86/
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Visual Studio & IDE caches
+.vs/
+.idea/
+.vscode/
+*.DotSettings.user
+
+# Diagnostic & debug logs
+*.log
+cr_trace.txt
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/

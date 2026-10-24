@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Platforms>x64</Platforms>
+    <PlatformTarget>x64</PlatformTarget>
+    <ApplicationIcon>assets\app.ico</ApplicationIcon>
+    <ApplicationManifest>src\app.manifest</ApplicationManifest>
+    <AssemblyName>CleanerRAM</AssemblyName>
+    <RootNamespace>CleanerRAM</RootNamespace>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- ui.xaml is dynamically loaded via XamlReader -->
+    <Page Remove="src\ui.xaml" />
+    <EmbeddedResource Include="src\ui.xaml">
+      <LogicalName>ui.xaml</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+</Project>
