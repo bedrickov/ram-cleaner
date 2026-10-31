@@ -165,4 +165,4 @@ dotnet build CleanerRAM.sln -c Release -p:Platform=x64
 
 Проект распространяется под лицензией [Apache License 2.0](LICENSE).
 
-<!-- verified: 2026-10-30 -->
+<!-- verified: 2026-10-31 -->
